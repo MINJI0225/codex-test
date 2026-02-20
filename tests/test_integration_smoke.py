@@ -23,6 +23,7 @@ def test_gateway_smoke_with_mocked_worker(monkeypatch):
 
     with TestClient(app) as client:
         health = client.get("/healthz")
+        domain = client.get("/v1/domain")
         tools = client.get("/v1/tools")
         run = client.post(
             "/v1/tools/firecrawl.crawl:run",
@@ -32,9 +33,19 @@ def test_gateway_smoke_with_mocked_worker(monkeypatch):
     assert health.status_code == 200
     assert health.json() == {"ok": True}
 
+    assert domain.status_code == 200
+    assert domain.json() == {"domain_id": "example_domain", "version": "0.1"}
+
     assert tools.status_code == 200
-    assert isinstance(tools.json(), list)
-    assert tools.json()[0]["tool_id"] == "firecrawl.crawl"
+    tools_json = tools.json()
+    assert tools_json["domain_id"] == "example_domain"
+    assert tools_json["version"] == "0.1"
+    assert isinstance(tools_json["tools"], list)
+    assert tools_json["tools"][0]["tool_id"] == "firecrawl.crawl"
+    assert tools_json["tools"][0]["kind"] == "service_worker"
+    assert "capabilities" in tools_json["tools"][0]
+    assert "timeout_sec" in tools_json["tools"][0]
+    assert "egress_allowlist" in tools_json["tools"][0]
 
     assert run.status_code == 200
     body = run.json()

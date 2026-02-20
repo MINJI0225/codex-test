@@ -2,8 +2,13 @@ domain_id: "example_domain"
 version: "0.1"
 tools:
   - tool_id: "firecrawl.crawl"
+    kind: "service_worker"
     display_name: "Firecrawl Crawl"
     description: "Crawl a URL and return extracted content using Firecrawl API"
+    capabilities:
+      - "web_crawl"
+      - "web_scrape"
+      - "extract"
     transport:
       type: "http"
       base_url: "http://tool-firecrawl:8080"

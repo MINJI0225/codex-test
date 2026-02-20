@@ -11,6 +11,7 @@ def test_load_manifest_and_policies_from_domain_files() -> None:
     assert manifest.version == "0.1"
     assert len(manifest.tools) == 1
     assert manifest.tools[0].tool_id == "firecrawl.crawl"
+    assert manifest.tools[0].kind == "service_worker"
 
     assert policies.concurrency.max_inflight == 8
     assert policies.concurrency.per_tool_max_inflight["firecrawl.crawl"] == 2

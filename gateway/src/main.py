@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
 from src.manifest import load_domain_config, resolve_domain_paths
-from src.models import ToolListItem, ToolConfig
+from src.models import DomainIdentity, ToolCatalog, ToolCatalogItem, ToolConfig
 from src.policy import PolicyEnforcer
 from src.schemas import validate_tool_input, validation_error_details
 
@@ -84,17 +84,38 @@ def healthz() -> dict[str, bool]:
     return {"ok": True}
 
 
-@app.get("/v1/tools", response_model=list[ToolListItem])
-def list_tools() -> list[ToolListItem]:
+@app.get("/v1/domain", response_model=DomainIdentity)
+def domain_identity() -> DomainIdentity:
     ensure_loaded()
-    return [
-        ToolListItem(
-            tool_id=tool.tool_id,
-            display_name=tool.display_name,
-            description=tool.description,
-        )
-        for tool in app.state.manifest.tools
-    ]
+    return DomainIdentity(
+        domain_id=app.state.manifest.domain_id,
+        version=app.state.manifest.version,
+    )
+
+
+@app.get("/v1/tools", response_model=ToolCatalog)
+def list_tools() -> ToolCatalog:
+    ensure_loaded()
+    return ToolCatalog(
+        domain_id=app.state.manifest.domain_id,
+        version=app.state.manifest.version,
+        tools=[
+            ToolCatalogItem(
+                tool_id=tool.tool_id,
+                kind=tool.kind,
+                display_name=tool.display_name,
+                description=tool.description,
+                capabilities=tool.capabilities,
+                timeout_sec=tool.timeout_sec,
+                egress_allowlist=tool.egress_allowlist,
+                transport_type=tool.transport.type,
+                transport_endpoint=tool.transport.endpoint,
+                input_schema_ref=tool.input_schema_ref,
+                output_schema_ref=tool.output_schema_ref,
+            )
+            for tool in app.state.manifest.tools
+        ],
+    )
 
 
 async def call_worker(tool: ToolConfig, payload: dict, timeout_sec: int) -> tuple[int, dict]:

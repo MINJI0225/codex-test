@@ -73,10 +73,17 @@ class FirecrawlClient:
                 details = response.json() if isinstance(response.json(), dict) else {"body": response.text}
             except Exception:
                 details = {"body": response.text}
+            status_code = response.status_code
+            if status_code == 401:
+                retryable = True
+            elif 400 <= status_code < 500:
+                retryable = False
+            else:
+                retryable = True
             raise FirecrawlClientError(
                 code="UPSTREAM_ERROR",
-                message=f"Firecrawl returned status {response.status_code}",
-                retryable=True,
+                message=f"Firecrawl returned status {status_code}",
+                retryable=retryable,
                 details=details,
             )
 

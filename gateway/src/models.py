@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -11,8 +13,10 @@ class TransportConfig(BaseModel):
 
 class ToolConfig(BaseModel):
     tool_id: str
+    kind: Literal["service_worker"]
     display_name: str
     description: str
+    capabilities: list[str] = Field(default_factory=list)
     transport: TransportConfig
     timeout_sec: int = 60
     input_schema_ref: str | None = None
@@ -51,10 +55,29 @@ class DomainPolicies(BaseModel):
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
 
 
-class ToolListItem(BaseModel):
+class DomainIdentity(BaseModel):
+    domain_id: str
+    version: str
+
+
+class ToolCatalogItem(BaseModel):
     tool_id: str
+    kind: str
     display_name: str
     description: str
+    capabilities: list[str] = Field(default_factory=list)
+    timeout_sec: int
+    egress_allowlist: list[str] = Field(default_factory=list)
+    transport_type: str | None = None
+    transport_endpoint: str | None = None
+    input_schema_ref: str | None = None
+    output_schema_ref: str | None = None
+
+
+class ToolCatalog(BaseModel):
+    domain_id: str
+    version: str
+    tools: list[ToolCatalogItem]
 
 
 class WorkerError(BaseModel):
