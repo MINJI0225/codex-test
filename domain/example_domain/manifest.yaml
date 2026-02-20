@@ -1,0 +1,15 @@
+domain_id: "example_domain"
+version: "0.1"
+tools:
+  - tool_id: "firecrawl.crawl"
+    display_name: "Firecrawl Crawl"
+    description: "Crawl a URL and return extracted content using Firecrawl API"
+    transport:
+      type: "http"
+      base_url: "http://tool-firecrawl:8080"
+      endpoint: "/run"
+    timeout_sec: 60
+    input_schema_ref: "schemas/firecrawl_crawl_input.json"
+    output_schema_ref: "schemas/firecrawl_crawl_output.json"
+    egress_allowlist:
+      - "api.firecrawl.dev:443"

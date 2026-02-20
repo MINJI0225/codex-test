@@ -1,0 +1,19 @@
+services:
+  gateway:
+    build: ./gateway
+    environment:
+      - DOMAIN_ID=example_domain
+      - DOMAIN_MANIFEST_PATH=/app/domain/example_domain/manifest.yaml
+      - DOMAIN_POLICIES_PATH=/app/domain/example_domain/policies.yaml
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./domain:/app/domain:ro
+
+  tool-firecrawl:
+    build: ./tools/firecrawl
+    environment:
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - FIRECRAWL_BASE_URL=https://api.firecrawl.dev
+    ports:
+      - "18080:8080"

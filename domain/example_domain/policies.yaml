@@ -1,0 +1,14 @@
+concurrency:
+  max_inflight: 8
+  per_tool_max_inflight:
+    firecrawl.crawl: 2
+
+timeouts:
+  default_tool_timeout_sec: 60
+
+network:
+  default_egress_policy: "deny"
+
+logging:
+  level: "INFO"
+  include_request_body: false
